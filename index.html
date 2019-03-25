@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <title>Korzhov</title>
+
+    <!--LIBRARIES-->
+    <script src="js/three.js"></script>
+    <!--<script src="js/ThreeCSG.js"></script>-->
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/stats.min.js" defer></script>
+
+    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+
+    <!--FONTS-->
+    <link href="https://fonts.googleapis.com/css?family=Rationale" rel="stylesheet">
+
+
+    <!--CSS (I'm use bootstrap)-->
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link type="text/css" href="css/main.css" rel="stylesheet">
+
+    <!--MAIN SCRIPT-->
+    <script type="text/javascript" src="js/start.js"></script>
+
+
+    <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r72/three.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>-->
+
+
+    <!--https://raw.githubusercontent.com/mrdoob/three.js/r96/examples/js/controls/OrbitControls.js-->
+
+
+</head>
+<body><!--justify-content-center-->
+
+<nav class="navbar navbar-expand-md fixed-top dark_nav">
+    <div class="collapse navbar-collapse" id="navbarCollapse"> >
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link " onclick="start();" href="#">Show</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link active" href="#" data-toggle="modal"
+                   data-target="#modalDLG">Modify <span class="sr-only">(Coordinates)</span></a>
+            </li>
+        </ul>
+        <span class="mr-auto">
+            Three.js grabbing memory, after <a onclick="start()" href="#">show</a>, plz, refresh page
+        </span>
+        <span>For Alexey Levanov</span>
+    </div>
+</nav>
+<!--Modal -->
+<div class="modal fade" id="modalDLG" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="pointer-events: auto;">
+        <div class="card"><!--col-6 style="width: 100%; max-width: 50%;"-->
+            <table class="table top-cover ">
+                <thead>
+                <tr style=" text-align: center;">
+                    <th>Входные данные</th>
+                    <th>X</th>
+                    <th>Z</th>
+                    <th>Y</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>
+                        Координаты начала
+                    </th>
+                    <th>
+                        <input type="text" ID="X0" value="0" placeholder="Enter X0">
+                    </th>
+                    <th>
+                        <input type="text" ID="Y0" value="0" placeholder="Enter Y0">
+                    </th>
+                    <th>
+                        <input type="text" ID="Z0" value="0" placeholder="Enter Z0">
+                    </th>
+                </tr>
+
+
+                <tr>
+                    <th>
+                        Проекция вектора скорости
+                    </th>
+                    <th>
+                        <input type="text" ID="VX" value="0.8" placeholder="Enter VX">
+                    </th>
+                    <th>
+                        <input type="text" ID="VY" value="0.5" placeholder="Enter VY">
+                    </th>
+                    <th>
+                        <input type="text" ID="VZ" value="0" placeholder="Enter VZ">
+                    </th>
+                </tr>
+
+                <tr>
+                    <th>
+                        Проекция вектора эл.поля
+                    </th>
+                    <th>
+                        <input type="text" ID="Ex" value="0" placeholder="Enter Ex">
+                    </th>
+                    <th>
+                        <input type="text" ID="Ey" value="0" placeholder="Enter Ey">
+                    </th>
+                    <th>
+                        <input type="text" ID="Ez" value="0" placeholder="Enter Ez">
+                    </th>
+                </tr>
+
+                <tr>
+                    <th>
+                        Проекция вектора маг.поля
+                    </th>
+                    <th>
+                        <input type="text" ID="Bx" value="0" placeholder="Enter Bx">
+                    </th>
+                    <th>
+                        <input type="text" ID="By" value="1" placeholder="Enter By">
+                    </th>
+                    <th>
+                        <input type="text" ID="Bz" value="0" placeholder="Enter Bz">
+                    </th>
+                </tr>
+
+                </tbody>
+            </table>
+
+
+            <div>
+                <label for="dt">Интегрирование</label>
+                <input type="text" ID="dt" value="0.01" placeholder="Enter dt">
+                <input type="text" ID="t" value="100" placeholder="Enter t">
+            </div>
+            <div>
+                <label for="q">Заряд</label>
+                <input type="text" ID="q" value="1" placeholder="Enter q">
+                <label for="m">Масса</label>
+                <input type="text" ID="m" value="1" placeholder="Enter m">
+                <button class="btn btn-danger my-1" id="button_start" onclick="start();">Отобразить</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div id="WebGL-output">
+</div>
+
+<!--For bootstrap(css) scripts -->
+<script src="js/popper.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+</body>
+</html>
