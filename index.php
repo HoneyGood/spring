@@ -10,7 +10,6 @@
     <script src="js/three.js"></script>
     <script src="js/OrbitControls.js"></script>
     <script src="js/stats.min.js" defer></script>
-    <script src="js/ThreeCSG.js" defer></script>
     <script src="js/STLLoader.js"></script>
 
     <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
