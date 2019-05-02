@@ -14,15 +14,84 @@
 
 
 $(document).ready(function () {
+    // Переменная куда будут располагаться данные файлов
+    var files;
+
+// Вешаем функцию на событие
+// Получим данные файлов и добавим их в переменную
+    $('input[type=file]').change(function(){
+        files = this.files;
+    });
+    // Вешаем функцию ан событие click и отправляем AJAX запрос с данными файлов
+
+    $('input[type=submit]').click(function( event ){
+        event.stopPropagation(); // Остановка происходящего
+        event.preventDefault();  // Полная остановка происходящего
+
+        // Создадим данные формы и добавим в них данные файлов из files
+
+        var data = new FormData();
+        $.each( files, function( key, value ){
+            data.append( key, value );
+        });
+
+        // Отправляем запрос
+
+        $.ajax({
+            url: './submit.php?uploadfiles',
+            type: 'POST',
+            data: data,
+            cache: false,
+            dataType: 'json',
+            processData: false, // Не обрабатываем файлы (Don't process the files)
+            contentType: false, // Так jQuery скажет серверу что это строковой запрос
+            success: function( respond, textStatus, jqXHR ){
+
+                // Если все ОК
+                if( typeof respond.error === 'undefined' ){
+                    // Файлы успешно загружены, делаем что нибудь здесь
+
+                    // выведем пути к загруженным файлам в блок '.ajax-respond'
+
+                    var files_path = respond.files;
+                    var html = '';
+                    $.each( files_path, function( key, val ){ html += val +'<br>'; } )
+                    $('.ajax-respond').html( html );
+                }
+                else{
+                    console.log('ОШИБКИ ОТВЕТА сервера: ' + respond.error );
+                }
+            },
+            error: function( jqXHR, textStatus, errorThrown ){
+                console.log('ОШИБКИ AJAX запроса: ' + textStatus );
+            }
+        });
+        var loader = new THREE.STLLoader();
+        alert(files[0].name)
+        loader.load( 'uploads/'+files[0].name, function ( geometry ) {
+            geometry.computeFaceNormals()
+            var material = new THREE.MeshPhongMaterial( {
+                ambient: 0xff5533,
+                color: 0xf77e,
+                specular: 0x111111,
+                shininess: 200 }
+
+            );
+            var mesh = new THREE.Mesh( geometry, material );
+
+            scene.add( mesh );
+        } );
+    });
+
     var scene, camera, renderer, threejs;
     var gui = null;
-
-    var mouse, raycaster, isShiftDown = false;
+    var mouse = new THREE.Vector2(), INTERSECTED;
+    var raycaster, isShiftDown = false;
     var objects = [];
 
 
     var WIDTH = window.innerWidth,
-        HEIGHT = window.innerHeight;
+        HEIGHT = window.innerHeight - 5;
 
     var mesh, color;
 
@@ -51,80 +120,41 @@ $(document).ready(function () {
 
 
         scene.add(camera); //добавление каменры на сцену
+        function CustomSinCurve( scale ) {
 
-        var geometry = new THREE.BoxGeometry(2, 2, 2); //создаем блок
-        color = Math.random() * 0xffffff; //рандомный цвет
-        var material = new THREE.MeshLambertMaterial({ //создаем компанент "матирьял" (свойства) в дальнейшем добавляем к каждому объекту этот матерьял, оч удобно
-            ambient: color,
-            color: color,
-            transparent: true
-        });
-        mesh = new THREE.Mesh(geometry, material); //добавили блок и его свойства
-        mesh.position.set(0, 3, 0); //поставили его
-        mesh.rotation.set(0, 0, 0);
-        mesh.rotation.y = de2ra(-90); //повернули
-        mesh.scale.set(1, 1, 1);
-        mesh.doubleSided = true;
-        mesh.castShadow = true;
-        scene.add(mesh); //отобразили
+            THREE.Curve.call( this );
+            this.scale = ( scale === undefined ) ? 1 : scale;
+        }
+        CustomSinCurve.prototype = Object.create( THREE.Curve.prototype );
+        CustomSinCurve.prototype.constructor = CustomSinCurve;
+        CustomSinCurve.prototype.getPoint = function ( t ) {
+            var tx = Math.cos(t*360*20);
+            var ty = Math.sin(t*360*20);
+            var tz = 3*t;
+            return new THREE.Vector3( tx, ty, tz ).multiplyScalar( this.scale );
 
-        /*дальше по аналогии, только с подставкой для блока белой*/
-        var planeGeometry = new THREE.BoxGeometry(10, 10, 0.1);
-        var planeMaterial = new THREE.MeshLambertMaterial({
-            color: 0xffffff,
-            ambient: 0x000000,
-            side: THREE.DoubleSide
-        });
-        planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-        planeMesh.position.set(0, 0, 0);
-        planeMesh.rotation.set(0, 0, 0);
-        planeMesh.rotation.x = de2ra(90);
-        planeMesh.receiveShadow = true;
-        scene.add(planeMesh);
+        };
+
+        var path = new CustomSinCurve( -6 );
+        var geometry = new THREE.TubeBufferGeometry( path, 50, 1, 64, false );
+        var material = new THREE.MeshBasicMaterial( { color: 0xf77e } );
+        var mesh = new THREE.Mesh( geometry, material );
+        scene.add( mesh );
 
         // grid
         var gridHelper = new THREE.GridHelper(50, 50);
         scene.add(gridHelper);
 
-        /*свет*/
-        var object3d = new THREE.DirectionalLight('white', 0.15);
-        object3d.position.set(6, 3, 9);
-        object3d.name = 'Back light';
-        scene.add(object3d);
-
-        object3d = new THREE.DirectionalLight('white', 0.35);
-        object3d.position.set(-6, -3, 0);
-        object3d.name = 'Key light';
-        scene.add(object3d);
-
-        object3d = new THREE.DirectionalLight('white', 0.55);
-        object3d.position.set(9, 9, 6);
-        object3d.name = 'Fill light';
-        scene.add(object3d);
-
-        var spotLight = new THREE.SpotLight(0xffffff);
-        spotLight.position.set(3, 30, 3);
-        spotLight.castShadow = true;
-        spotLight.shadowMapWidth = 2048;
-        spotLight.shadowMapHeight = 2048;
-        spotLight.shadowCameraNear = 1;
-        spotLight.shadowCameraFar = 4000;
-        spotLight.shadowCameraFov = 45;
-        scene.add(spotLight);
-
         /*библиотека Контроля Осей, я ее добавлял для того, чтобы отобразить XYZ вектора, тут хз зач нужна*/
         controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-        /*mouse move*/
-        raycaster = new THREE.Raycaster();
-        mouse = new THREE.Vector3();
-
-        document.addEventListener('mousemove', onDocumentMouseMove, false);
-        document.addEventListener('mousedown', onDocumentMouseDown, false);
-        document.addEventListener('keydown', onDocumentKeyDown, false);
-        document.addEventListener('keyup', onDocumentKeyUp, false);
-
         window.addEventListener('resize', onWindowResize, false);
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight - 5);
+        }
 
         /*панелька для контроля блока*/
         //какие параметры принимаем
@@ -133,31 +163,89 @@ $(document).ready(function () {
             this.scaleY = 1;
             this.scaleZ = 1;
             this.positionX = 0;
-            this.positionY = 3;
+            this.positionY = 0;
             this.positionZ = 0;
             this.rotationX = 0;
-            this.rotationY = 90;
+            this.rotationY = 0;
             this.rotationZ = 0;
-            this.boxColor = color;
-            this.castShadow = true;
             this.boxOpacity = 1;
 
-            this.positionx=false;
-            this.positiony=false;
-            this.positionz=false;
+            function addEvent() {
+                document.addEventListener('mousemove', onDocumentMouseMove, false);
+                document.addEventListener('mousedown', onDocumentMouseDown, false);
+                document.addEventListener('mouseup', onDocumentMouseUp, false);
+                controls.noRotate = !controls.noRotate;
+                controls.update()
+            }
+            function removeEvent() {
+                document.removeEventListener('mousemove', onDocumentMouseMove, false);
+                document.removeEventListener('mousedown', onDocumentMouseDown, false);
+                document.removeEventListener('mouseup', onDocumentMouseUp, false);
+                controls.noRotate = !controls.noRotate;
+                controls.update()
+            }
+            var x0,y0 = 0;
+            function onDocumentMouseMove(event) {
+                event.preventDefault();
+                // planeMesh.rotation.x = planeMesh.rotation.x+de2ra(1);
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+
+                // renderScene();
+            }
+            function onDocumentMouseDown(event) {
+                event.preventDefault();
+                // objects.push(mouse.x);
+                x0=mouse.x
+                y0=mouse.y
+                // alert('mouse down')
+                renderScene();
+            }
+            function onDocumentMouseUp(event) {
+                event.preventDefault();
+                var geometry = new THREE.PlaneGeometry( (x0-mouse.x)*50, (y0-mouse.y)*25, 32 );
+                var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+                var plane = new THREE.Mesh( geometry, material );
+                scene.add( plane );
+                removeEvent()
+                renderScene();
+            }
+            this.line = function () {
+                /*mouse move*/
+                raycaster = new THREE.Raycaster();
+                addEvent();
+            }
+
+            this.positionx = function () {
+                camera.position.set(0, 0, 50);
+            };
+            this.positiony = function () {
+                camera.position.set(50, 0, 0);
+            };
+            this.positionz = function () {
+                camera.position.set(0, 50, 0);
+            };
+
+            /*function download(content, fileName, contentType) {
+                var a = document.createElement("a");
+                var file = new Blob([content], {type: contentType});
+                a.href = URL.createObjectURL(file);
+                a.download = fileName;
+                a.click();
+            }*/
         }();
 
         var gui = new dat.GUI(); //создали gui
+
+        var f5 = gui.addFolder('Drow2D');
+        f5.add(controller, 'line');
+
         var f4 = gui.addFolder('Camera');
-        f4.add(controller, 'positionx',true).onChange(function () {
-            camera.position.set(50,0,0);
-        });
-        f4.add(controller, 'positiony',true).onChange(function () {
-            camera.position.set(0,50,0);
-        });
-        f4.add(controller, 'positionz',true).onChange(function () {
-            camera.position.set(0,0,50);
-        });
+        f4.add(controller, 'positionx');
+        f4.add(controller, 'positiony');
+        f4.add(controller, 'positionz');
+
         var f1 = gui.addFolder('Scale'); //поле Scale, потом установили событие onChange на него
         f1.add(controller, 'scaleX', 0.1, 5).onChange(function () {
             mesh.scale.x = (controller.scaleX); //присваиваем блоку позицию по X
@@ -191,12 +279,6 @@ $(document).ready(function () {
         f3.add(controller, 'rotationZ', -180, 180).onChange(function () {
             mesh.rotation.z = de2ra(controller.rotationZ);
         });
-        gui.addColor(controller, 'boxColor', color).onChange(function () {
-            mesh.material.color.setHex(dec2hex(controller.boxColor));
-        });
-        gui.add(controller, 'castShadow', false).onChange(function () {
-            mesh.castShadow = controller.castShadow;
-        });
         gui.add(controller, 'boxOpacity', 0.1, 1).onChange(function () {
             material.opacity = (controller.boxOpacity);
         });
@@ -224,15 +306,6 @@ $(document).ready(function () {
 
     }
 
-    function onWindowResize() {
-        windowHalfX = window.innerWidth / 2;
-        windowHalfY = window.innerHeight / 2;
-
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    }
 
     /*для движение камеры*/
     function animate() {
@@ -246,59 +319,5 @@ $(document).ready(function () {
         renderer.render(scene, camera);
     }
 
-    /*mouse*/
-    function onDocumentMouseMove(event) {
-        event.preventDefault();
-        mouse.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
-        raycaster.setFromCamera(mouse, camera);
-        var intersects = raycaster.intersectObjects(objects);
-        if (intersects.length > 0) {
-            var intersect = intersects[0];
-            rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
-            rollOverMesh.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
-        }
-        renderScene();
-    }
-
-    function onDocumentMouseDown(event) {
-        event.preventDefault();
-        mouse.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
-        raycaster.setFromCamera(mouse, camera);
-        var intersects = raycaster.intersectObjects(objects);
-        if (intersects.length > 0) {
-            var intersect = intersects[0];
-            // delete cube
-            if (isShiftDown) {
-                if (intersect.object !== plane) {
-                    scene.remove(intersect.object);
-                    objects.splice(objects.indexOf(intersect.object), 1);
-                }
-                // create cube
-            } else {
-                var voxel = new THREE.Mesh(cubeGeo, cubeMaterial);
-                voxel.position.copy(intersect.point).add(intersect.face.normal);
-                voxel.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
-                scene.add(voxel);
-                objects.push(voxel);
-            }
-            render();
-        }
-    }
-
-    function onDocumentKeyDown(event) {
-        switch (event.keyCode) {
-            case 16:
-                isShiftDown = true;
-                break;
-        }
-    }
-
-    function onDocumentKeyUp(event) {
-        switch (event.keyCode) {
-            case 16:
-                isShiftDown = false;
-                break;
-        }
-    }
 
 });
