@@ -6,25 +6,25 @@
     <title>Korzhov/Kazunin</title>
 
     <!--LIBRARIES-->
-    <script src="js/dat.gui.js"></script>
-    <script src="js/three.js"></script>
-    <script src="js/OrbitControls.js"></script>
-    <script src="js/stats.min.js" defer></script> <!--statistic-->
-    <script src="js/STLLoader.js"></script> <!--load from user stl file-->
-    <script src="js/STLExporter.js"></script> <!--export scene to stl-->
-    <script src="js/FileSaver.js"></script> <!--download from server-->
+    <script type="text/javascript" src="/js/dat.gui.js"></script>
+    <script type="text/javascript" src="/js/three.js"></script>
+    <script type="text/javascript" src="/js/OrbitControls.js"></script>
+    <script type="text/javascript" src="/js/stats.min.js" defer></script> <!--statistic-->
+    <script type="text/javascript" src="/js/STLLoader.js"></script> <!--load from user stl file-->
+    <script type="text/javascript" src="/js/STLExporter.js"></script> <!--export scene to stl-->
+    <script type="text/javascript" src="/js/FileSaver.js"></script> <!--download from server-->
 
 
 
-    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="/js/jquery-3.3.1.js"></script>
 
     <!--FONTS-->
     <link href="https://fonts.googleapis.com/css?family=Rationale" rel="stylesheet">
 
 
     <!--CSS (I'm use bootstrap)-->
-    <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
-    <link type="text/css" href="css/main.css" rel="stylesheet">
+    <link href="/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link type="text/css" href="/css/main.css" rel="stylesheet">
 
     <!--MAIN SCRIPT-->
     <script defer type="text/javascript" src="js/main.js"></script>
@@ -68,7 +68,7 @@
 </div>
 
 <!--For bootstrap(css) scripts -->
-<script src="js/popper.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
 </body>
 </html>

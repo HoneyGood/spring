@@ -47,6 +47,25 @@ $(document).ready(function () {
                         html += val + ' - Файл загружен';
                     })
                     alert(html)
+                    var loader = new THREE.STLLoader();
+                    // alert(files[0].name)
+                    loader.load('uploads/' + files[0].name, function (geometry) {
+                        geometry.computeFaceNormals()
+                        /*            var material = new THREE.MeshPhongMaterial({
+                                            ambient: 0xff5533,
+                                            color: 0xf77e,
+                                            specular: 0x111111,
+                                            shininess: 200
+                                        }
+                                    );*/
+
+                        var material = new THREE.MeshPhongMaterial( { color: 0xff5533, specular: 0x111111, shininess: 200 } );
+
+                        var mesh = new THREE.Mesh(geometry, material);
+
+                        // alert(loader.parse(mesh))
+                        scene.add(mesh);
+                    });
                 }
                 else {
                     console.log('ОШИБКИ ОТВЕТА сервера: ' + respond.error);
@@ -56,24 +75,6 @@ $(document).ready(function () {
                 console.log('ОШИБКИ AJAX запроса: ' + textStatus);
             }
         });
-        var loader = new THREE.STLLoader();
-        // alert(files[0].name)
-        loader.load('uploads/' + files[0].name, function (geometry) {
-            geometry.computeFaceNormals()
-/*            var material = new THREE.MeshPhongMaterial({
-                    ambient: 0xff5533,
-                    color: 0xf77e,
-                    specular: 0x111111,
-                    shininess: 200
-                }
-            );*/
 
-            var material = new THREE.MeshPhongMaterial( { color: 0xff5533, specular: 0x111111, shininess: 200 } );
-
-            var mesh = new THREE.Mesh(geometry, material);
-
-            // alert(loader.parse(mesh))
-            scene.add(mesh);
-        });
     });
 });
