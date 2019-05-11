@@ -15,7 +15,6 @@
     <script type="text/javascript" src="/js/FileSaver.js"></script> <!--download from server-->
 
 
-
     <script type="text/javascript" src="/js/jquery-3.3.1.js"></script>
 
     <!--FONTS-->
@@ -45,7 +44,7 @@
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <!--                    <input type="file" class="form-control-file mr-sm-2" name="filename">-->
-                    <input type="file" name="filename" id="file" class="input-file">
+                    <input type="file" name="userfile" id="file" class="input-file">
                     <label for="file" class="btn btn-outline-light btn-left">
                         <i class="icon fa fa-check"></i>
                         <span class="js-fileName">Choose a file</span>

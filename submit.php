@@ -5,7 +5,7 @@
  * Date: 02.05.2019
  * Time: 17:15
  */
-
+ini_set('upload_max_filesize', '10M');
 // Здесь нужно сделать все проверки передаваемых файлов и вывести ошибки если нужно
 
 // Переменная ответа
@@ -16,7 +16,7 @@ if (isset($_GET['uploadfiles'])) {
     $error = false;
     $files = array();
 
-    $uploaddir = './uploads/'; // . - текущая папка где находится submit.php
+    $uploaddir = 'uploads/'; // . - текущая папка где находится submit.php
 
     // Создадим папку если её нет
 
@@ -30,8 +30,14 @@ if (isset($_GET['uploadfiles'])) {
             $error = true;
         }
     }
+    /*foreach ($_FILES as $file) {
 
-    $data = $error ? array('error' => 'Ошибка загрузки файлов.') : array('files' => $files);
+    $uploadfile = $uploaddir . basename($_FILES['userfile']['name']);
+    }
+    move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile);*/
+
+
+    $data = $error ? array('error' => 'Ошибка загрузки файлов.'.($file['error'])) : array('files' => $files);
 
     echo json_encode($data);
 
